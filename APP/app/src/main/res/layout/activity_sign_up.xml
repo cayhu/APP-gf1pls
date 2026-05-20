@@ -227,24 +227,6 @@
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <LinearLayout
-                    android:id="@+id/layoutPermission"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_bold"
-                        android:text="@string/chuc_vu"
-                        android:textColor="@color/BlackPrimary"
-                        android:textSize="16sp" />
-
-
-                </LinearLayout>
-
                 <Button
                     android:id="@+id/btnSignUp"
                     android:layout_width="match_parent"

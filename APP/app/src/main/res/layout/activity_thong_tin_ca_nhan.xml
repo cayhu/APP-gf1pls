@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/GrayPrimary"
-    tools:context=".ui.ThietLapTaiKhoanActivity">
+    tools:context=".ui.ThongTinCaNhanActivity">
 
     <ScrollView
         android:id="@+id/scrollView6"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,12 +34,12 @@
 
             <LinearLayout
                 android:id="@+id/layoutHeader"
-                app:layout_constraintTop_toBottomOf="@id/ivBack"
-                android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:gravity="center_horizontal">
+                app:layout_constraintTop_toBottomOf="@id/ivBack">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="130dp"
@@ -57,58 +58,55 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
-                    android:layout_marginTop="10dp"
-                    android:textSize="20sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/inter_bold"
+                    android:text="Thông tin cá nhân"
                     android:textAllCaps="true"
-                    android:text="@string/thontintaikhoan"
                     android:textColor="@color/BlackPrimary"
-                    android:fontFamily="@font/inter_bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layoutHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                tools:ignore="UselessLeaf"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp">
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
                 <androidx.cardview.widget.CardView
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="6dp">
 
-                    <RelativeLayout
-                        android:padding="16dp"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
 
                         <ImageView
-                            android:id="@+id/iv"
-                            android:layout_centerVertical="true"
-                            android:layout_alignParentStart="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_gr_ma_nd"
                             tools:ignore="ContentDescription" />
 
                         <LinearLayout
-                            android:layout_marginEnd="16dp"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
                             android:layout_marginStart="10dp"
-                            android:layout_toEndOf="@id/iv"
+                            android:layout_marginEnd="16dp"
+                            android:layout_weight="1"
                             android:orientation="vertical">
 
                             <TextView
@@ -117,20 +115,18 @@
                                 android:fontFamily="@font/inter_regular"
                                 android:text="Tên đăng nhập"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="14sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvMaNguoiDung"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/inter_bold"
-                                android:text="Nguyen Van A"
+                                android:text="user001"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="16sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="16sp" />
                         </LinearLayout>
-                    </RelativeLayout>
+                    </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
@@ -172,18 +168,16 @@
                                 android:fontFamily="@font/inter_regular"
                                 android:text="Họ và tên"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="14sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvTenNguoiDung"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/inter_bold"
-                                android:text="Nguyen Van A"
+                                android:text="Nguyễn Văn A"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="16sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="16sp" />
                         </LinearLayout>
 
                         <ImageView
@@ -236,8 +230,7 @@
                                 android:fontFamily="@font/inter_regular"
                                 android:text="Ngày sinh"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="14sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvNgaySinh"
@@ -246,8 +239,7 @@
                                 android:fontFamily="@font/inter_bold"
                                 android:text="22-10-2003"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="16sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="16sp" />
                         </LinearLayout>
 
                         <ImageView
@@ -300,8 +292,7 @@
                                 android:fontFamily="@font/inter_regular"
                                 android:text="Giới tính"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="14sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvGioiTinh"
@@ -310,8 +301,7 @@
                                 android:fontFamily="@font/inter_bold"
                                 android:text="Nam"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="16sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="16sp" />
                         </LinearLayout>
 
                         <ImageView
@@ -364,8 +354,7 @@
                                 android:fontFamily="@font/inter_regular"
                                 android:text="Email"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="14sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvEmail"
@@ -374,8 +363,7 @@
                                 android:fontFamily="@font/inter_bold"
                                 android:text="nguyenvana@gmail.com"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="16sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="16sp" />
                         </LinearLayout>
 
                         <ImageView
@@ -401,8 +389,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:padding="16dp">
 
                         <ImageView
@@ -414,9 +402,9 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="16dp"
+                            android:layout_weight="1"
                             android:orientation="vertical">
 
                             <TextView
@@ -425,21 +413,20 @@
                                 android:fontFamily="@font/inter_regular"
                                 android:text="Chức vụ"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="14sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvChucVu"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/inter_bold"
-                                android:text="Admin"
+                                android:text="Nhân Viên"
                                 android:textColor="@color/BlackPrimary"
-                                android:textSize="16sp"
-                                tools:ignore="HardcodedText" />
+                                android:textSize="16sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
+
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

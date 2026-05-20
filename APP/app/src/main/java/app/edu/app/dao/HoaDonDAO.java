@@ -649,7 +649,7 @@ public class HoaDonDAO extends FirebaseDAO {
                 return null;
             }
             
-            // Parse maBan (có thể là Long, Integer, hoặc Double)
+            // Parse maBan (có thể là Long, Integer, Double, hoặc String)
             Object maBanObj = map.get("maBan");
             if (maBanObj != null) {
                 try {
@@ -659,6 +659,24 @@ public class HoaDonDAO extends FirebaseDAO {
                         hoaDon.setMaBan((Integer) maBanObj);
                     } else if (maBanObj instanceof Double) {
                         hoaDon.setMaBan(((Double) maBanObj).intValue());
+                    } else if (maBanObj instanceof String) {
+                        // Xử lý maBan dạng String (ví dụ: "3" hoặc "BO3")
+                        String maBanStr = (String) maBanObj;
+                        if (maBanStr != null && !maBanStr.trim().isEmpty()) {
+                            // Thử parse số trước
+                            try {
+                                hoaDon.setMaBan(Integer.parseInt(maBanStr.trim()));
+                            } catch (NumberFormatException e) {
+                                // Nếu không parse được số, thử lấy số cuối (ví dụ: "BO3" -> "3")
+                                String numbers = maBanStr.replaceAll("[^0-9]", "");
+                                if (!numbers.isEmpty()) {
+                                    hoaDon.setMaBan(Integer.parseInt(numbers));
+                                    Log.d(TAG, "Parse maBan String '" + maBanStr + "' -> lấy số '" + numbers + "'");
+                                } else {
+                                    Log.w(TAG, "Không parse được maBan String: " + maBanStr);
+                                }
+                            }
+                        }
                     } else {
                         Log.w(TAG, "maBan type không hỗ trợ: " + maBanObj.getClass().getName());
                     }
@@ -667,7 +685,7 @@ public class HoaDonDAO extends FirebaseDAO {
                 }
             }
             
-            // Parse trangThai (có thể là Long, Integer, hoặc Double)
+            // Parse trangThai (có thể là Long, Integer, Double, hoặc String)
             Object trangThaiObj = map.get("trangThai");
             if (trangThaiObj != null) {
                 try {
@@ -677,6 +695,12 @@ public class HoaDonDAO extends FirebaseDAO {
                         hoaDon.setTrangThai((Integer) trangThaiObj);
                     } else if (trangThaiObj instanceof Double) {
                         hoaDon.setTrangThai(((Double) trangThaiObj).intValue());
+                    } else if (trangThaiObj instanceof String) {
+                        // Xử lý trangThai dạng String (ví dụ: "0", "1")
+                        String trangThaiStr = (String) trangThaiObj;
+                        if (trangThaiStr != null && !trangThaiStr.trim().isEmpty()) {
+                            hoaDon.setTrangThai(Integer.parseInt(trangThaiStr.trim()));
+                        }
                     } else {
                         Log.w(TAG, "trangThai type không hỗ trợ: " + trangThaiObj.getClass().getName());
                     }

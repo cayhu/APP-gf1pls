@@ -23,7 +23,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.APTCOFFEE"
+        android:theme="@style/Theme.ARMYCOFFEE"
         tools:targetApi="31">
 
         <activity
@@ -86,6 +86,10 @@
             android:name="app.edu.app.ui.ThemLoaiActivity"
             android:exported="false"
             android:theme="@style/AppStatusBarWhite" />
+        <activity
+            android:name="app.edu.app.ui.ThongTinCaNhanActivity"
+            android:exported="false"
+            android:theme="@style/AppStatusBarGray" />
         <activity
             android:name="app.edu.app.ui.ThietLapTaiKhoanActivity"
             android:exported="false"

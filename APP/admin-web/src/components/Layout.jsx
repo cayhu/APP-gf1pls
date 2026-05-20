@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   LayoutDashboard,
   Users,
@@ -14,7 +15,9 @@ import {
   X,
   LogOut,
   Coffee,
-  CalendarCheck
+  CalendarCheck,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const Layout = () => {
@@ -22,6 +25,7 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userData, logout } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
 
   const menuItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -50,14 +54,14 @@ const Layout = () => {
       <aside
         className={`${
           sidebarOpen ? 'w-64' : 'w-20'
-        } bg-white shadow-lg transition-all duration-300 flex flex-col`}
+        } bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 flex flex-col`}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b">
+        <div className="h-16 flex items-center justify-between px-4 border-b dark:border-gray-700">
           {sidebarOpen && (
             <div className="flex items-center space-x-2">
               <Coffee className="w-8 h-8 text-primary-600" />
-              <span className="text-xl font-bold text-gray-900">Coffee Admin</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">ARmy Coffee</span>
             </div>
           )}
           <button
@@ -79,8 +83,8 @@ const Layout = () => {
                 to={item.path}
                 className={`flex items-center space-x-3 px-4 py-3 mx-2 rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-primary-50 text-primary-600'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
@@ -91,16 +95,23 @@ const Layout = () => {
         </nav>
 
         {/* User Info */}
-        <div className="border-t p-4">
+        <div className="border-t dark:border-gray-700 p-4">
           {sidebarOpen && userData && (
             <div className="mb-3">
-              <p className="text-sm font-medium text-gray-900">{userData.hoVaTen}</p>
-              <p className="text-xs text-gray-500">{userData.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{userData.hoVaTen}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{userData.email}</p>
             </div>
           )}
           <button
+            onClick={toggleDarkMode}
+            className="w-full flex items-center space-x-3 px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors mb-1"
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {sidebarOpen && <span>{darkMode ? 'Chế độ sáng' : 'Chế độ tối'}</span>}
+          </button>
+          <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
             {sidebarOpen && <span>Đăng xuất</span>}

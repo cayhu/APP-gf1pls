@@ -10,12 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 
+import app.edu.app.MainActivity;
 import app.edu.app.R;
 import app.edu.app.adapter.NguoiDungAdapter;
 import app.edu.app.dao.NguoiDungDAO;
@@ -28,10 +30,23 @@ public class NhanVienActivity extends AppCompatActivity {
     Toolbar toolBar;
     RecyclerView recyclerViewNhanVien;
     NguoiDungDAO nguoiDungDAO;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Kiểm tra quyền Admin trước khi cho phép truy cập
+        sharedPreferences = getSharedPreferences("USER_FILE", MODE_PRIVATE);
+        String maNguoiDungHienTai = sharedPreferences.getString("maNguoiDung", "");
+        NguoiDungDAO checkDao = new NguoiDungDAO(this);
+        NguoiDung currentUser = checkDao.getByMaNguoiDung(maNguoiDungHienTai);
+        if (currentUser == null || !currentUser.isAdmin()) {
+            MyToast.error(this, "Chức năng chỉ dành cho Admin");
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_nhan_vien);
 
         initToolBar();

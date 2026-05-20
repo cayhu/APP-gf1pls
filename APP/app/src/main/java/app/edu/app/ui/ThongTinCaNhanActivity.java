@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,14 +30,15 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 import app.edu.app.R;
 import app.edu.app.dao.NguoiDungDAO;
-import app.edu.app.fragment.SettingFragment;
 import app.edu.app.interfaces.OnUrlFetchedListener;
 import app.edu.app.model.NguoiDung;
 import app.edu.app.utils.ImageCache;
 import app.edu.app.utils.MyToast;
 import app.edu.app.utils.XDate;
 
-public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.OnClickListener {
+public class ThongTinCaNhanActivity extends AppCompatActivity implements View.OnClickListener {
+
+    public static final String KEY_MA_NGUOI_DUNG = "maNguoiDung";
 
     ImageView ivBack, ivEditTen, ivEditNgaySinh, ivEditEmail, ivEditGioiTinh;
     CircleImageView civHinhAnh;
@@ -46,13 +48,23 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_thiet_lap_tai_khoan);
-        initView();
-        nguoiDungDAO = new NguoiDungDAO(this);
-        getInfoNguoiDung();
-        initOnclickIv();
-    }
+        setContentView(R.layout.activity_thong_tin_ca_nhan);
 
+        // Chỉ cho phép Admin hoặc NhanVien truy cập
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_FILE", MODE_PRIVATE);
+        String maNguoiDungHienTai = sharedPreferences.getString("maNguoiDung", "");
+        nguoiDungDAO = new NguoiDungDAO(this);
+        NguoiDung currentUser = nguoiDungDAO.getByMaNguoiDung(maNguoiDungHienTai);
+        if (currentUser == null || (!currentUser.isAdmin() && !currentUser.isStaff())) {
+            MyToast.error(this, "Chức năng chỉ dành cho Admin hoặc Nhân viên");
+            finish();
+            return;
+        }
+
+        initView();
+        initOnclickIv();
+        getInfoNguoiDung();
+    }
 
     private void initView() {
         ivBack = findViewById(R.id.ivBack);
@@ -78,34 +90,14 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
     }
 
     private NguoiDung getObjectNguoiDung() {
-        Intent intent = getIntent();
-        String maNguoiDung = intent.getStringExtra(SettingFragment.MA_NGUOIDUNG);
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_FILE", MODE_PRIVATE);
+        String maNguoiDung = sharedPreferences.getString("maNguoiDung", "");
         return nguoiDungDAO.getByMaNguoiDung(maNguoiDung);
     }
 
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
-//        switch (view.getId()) {
-//            case R.id.ivBack:
-//                onBackPressed();
-//                break;
-//            case R.id.ivEditHoVaTen:
-//                showDialogEditTen();
-//                break;
-//            case R.id.ivEditNgaySinh:
-//                showDialogEditNgaySinh();
-//                break;
-//            case R.id.ivEditGioiTinh:
-//                showDialogEditGioiTinh();
-//                break;
-//            case R.id.ivEditEmail:
-//                showDialogEditEmail();
-//                break;
-//            case R.id.ivEditChucVu:
-//                showDialogEditChucVu();
-//                break;
-//        }
         if (view.getId() == R.id.ivBack) {
             onBackPressed();
         } else if (view.getId() == R.id.ivEditHoVaTen) {
@@ -122,8 +114,8 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
     @SuppressLint("SetTextI18n")
     private void getInfoNguoiDung() {
         NguoiDung nguoiDung = getObjectNguoiDung();
-//        Bitmap bitmap = BitmapFactory.decodeByteArray(nguoiDung.getHinhAnh(), 0, nguoiDung.getHinhAnh().length);
-//        civHinhAnh.setImageBitmap(bitmap);
+        if (nguoiDung == null) return;
+
         ImageCache.getUrlFromCache("nguoidung_" + nguoiDung.getMaNguoiDung(), new OnUrlFetchedListener() {
             @Override
             public void onUrlFetched(String url) {
@@ -146,8 +138,8 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
     private void showDialogEditTen() {
         NguoiDung nguoiDung = getObjectNguoiDung();
         View viewDialog = LayoutInflater.from(this).inflate(R.layout.layout_edit_ten_nd, null);
-        TextInputLayout tilNgaySinh = viewDialog.findViewById(R.id.til);
-        Objects.requireNonNull(tilNgaySinh.getEditText()).setText(nguoiDung.getHoVaTen());
+        TextInputLayout tilHoVaTen = viewDialog.findViewById(R.id.til);
+        Objects.requireNonNull(tilHoVaTen.getEditText()).setText(nguoiDung.getHoVaTen());
         Button btnUpdate = viewDialog.findViewById(R.id.btnUpdate);
         TextView tvBoQua = viewDialog.findViewById(R.id.tvBoQua);
         Dialog dialog = new Dialog(this);
@@ -165,14 +157,13 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String hoVaTen = tilNgaySinh.getEditText().getText().toString().trim();
+                String hoVaTen = tilHoVaTen.getEditText().getText().toString().trim();
                 if (hoVaTen.isEmpty()) {
-                    MyToast.error(ThietLapTaiKhoanActivity.this, "Vui lòng không để trống");
+                    MyToast.error(ThongTinCaNhanActivity.this, "Vui lòng không để trống");
                 } else {
-                    // Cập nhật lại họ và tên
                     nguoiDung.setHoVaTen(hoVaTen);
                     if (nguoiDungDAO.updateNguoiDung(nguoiDung)) {
-                        MyToast.successful(ThietLapTaiKhoanActivity.this, "Cập nhật thành công");
+                        MyToast.successful(ThongTinCaNhanActivity.this, "Cập nhật thành công");
                         dialog.dismiss();
                     }
                 }
@@ -206,12 +197,11 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
             public void onClick(View view) {
                 String email = tilEmail.getEditText().getText().toString().trim();
                 if (email.isEmpty()) {
-                    MyToast.error(ThietLapTaiKhoanActivity.this, "Vui lòng không để trống");
+                    MyToast.error(ThongTinCaNhanActivity.this, "Vui lòng không để trống");
                 } else {
-                    // Cập nhật Email
                     nguoiDung.setEmail(email);
                     if (nguoiDungDAO.updateNguoiDung(nguoiDung)) {
-                        MyToast.successful(ThietLapTaiKhoanActivity.this, "Cập nhật thành công");
+                        MyToast.successful(ThongTinCaNhanActivity.this, "Cập nhật thành công");
                         dialog.dismiss();
                     }
                 }
@@ -245,25 +235,24 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
             public void onClick(View view) {
                 String ngaySinh = tilNgaySinh.getEditText().getText().toString().trim();
                 if (ngaySinh.isEmpty()) {
-                    MyToast.error(ThietLapTaiKhoanActivity.this, "Vui lòng không để trống");
+                    MyToast.error(ThongTinCaNhanActivity.this, "Vui lòng không để trống");
                 } else {
                     try {
                         Date date = XDate.toDate(ngaySinh);
                         nguoiDung.setNgaySinh(date);
                         if (nguoiDungDAO.updateNguoiDung(nguoiDung)) {
-                            MyToast.successful(ThietLapTaiKhoanActivity.this, "Cập nhật thành công");
+                            MyToast.successful(ThongTinCaNhanActivity.this, "Cập nhật thành công");
                             dialog.dismiss();
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();
-                        MyToast.error(ThietLapTaiKhoanActivity.this, "Nhập ngày sinh sai dịnh dạng");
+                        MyToast.error(ThongTinCaNhanActivity.this, "Nhập ngày sinh sai định dạng");
                     }
                 }
                 getInfoNguoiDung();
             }
         });
 
-        // Hiển thị Dialog chọn ngày
         tilNgaySinh.getEditText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -272,7 +261,7 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
                 int date = calendar.get(Calendar.DATE);
                 int month = calendar.get(Calendar.MONTH);
                 int year = calendar.get(Calendar.YEAR);
-                DatePickerDialog datePickerDialog = new DatePickerDialog(ThietLapTaiKhoanActivity.this, R.style.MyDatePickerDialogTheme,new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(ThongTinCaNhanActivity.this, R.style.MyDatePickerDialogTheme, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                         calendar.set(i, i1, i2);
@@ -320,7 +309,7 @@ public class ThietLapTaiKhoanActivity extends AppCompatActivity implements View.
                     nguoiDung.setGioiTinh(NguoiDung.GENDER_FEMALE);
                 }
                 if (nguoiDungDAO.updateNguoiDung(nguoiDung)) {
-                    MyToast.successful(ThietLapTaiKhoanActivity.this, "Cập nhật thành công");
+                    MyToast.successful(ThongTinCaNhanActivity.this, "Cập nhật thành công");
                     dialog.dismiss();
                 }
                 getInfoNguoiDung();

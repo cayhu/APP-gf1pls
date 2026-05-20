@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -58,6 +59,18 @@ public class CapNhatNhanVienActivity extends AppCompatActivity implements View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Kiểm tra quyền Admin trước khi cho phép truy cập
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_FILE", MODE_PRIVATE);
+        String maNguoiDungHienTai = sharedPreferences.getString("maNguoiDung", "");
+        NguoiDungDAO checkDao = new NguoiDungDAO(this);
+        NguoiDung currentUser = checkDao.getByMaNguoiDung(maNguoiDungHienTai);
+        if (currentUser == null || !currentUser.isAdmin()) {
+            MyToast.error(this, "Chức năng chỉ dành cho Admin");
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_cap_nhat_nhan_vien);
         initView();
         nguoiDungDAO = new NguoiDungDAO(this);
@@ -142,7 +155,6 @@ public class CapNhatNhanVienActivity extends AppCompatActivity implements View.O
         nguoiDung.setHinhAnh(ImageToByte.circleImageViewToByte(CapNhatNhanVienActivity.this, civHinhAnh));
         nguoiDung.setNgaySinh(XDate.toDate(ngaySinh));
         nguoiDung.setEmail(email);
-        nguoiDung.setChucVu(NguoiDung.POSITION_STAFF);
         nguoiDung.setGioiTinh(getGender());
         nguoiDung.setMatKhau(matKhau);
         if (nguoiDungDAO.updateNguoiDung(nguoiDung)) {

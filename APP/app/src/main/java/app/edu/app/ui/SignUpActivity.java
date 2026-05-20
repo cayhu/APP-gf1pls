@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
+import app.edu.app.MainActivity;
 import app.edu.app.R;
 import app.edu.app.dao.NguoiDungDAO;
 import app.edu.app.model.NguoiDung;
@@ -32,7 +35,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     ImageView ivBack;
     TextInputLayout tilMaNguoiDung, tilHoVaTen, tilNgaySinh, tilEmail, tilMatKhau;
     TextInputEditText tieNgaySinh;
-    RadioGroup rdgGender, rdgPosition;
+    RadioGroup rdgGender;
     Button btnSignUp;
     TextView tvSignIn;
     NguoiDungDAO nguoiDungDAO;
@@ -40,6 +43,24 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Kiểm tra nếu đã đăng nhập với vai trò Admin/NhanVien thì không cho vào đăng ký
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_FILE", MODE_PRIVATE);
+        String maNguoiDung = sharedPreferences.getString("maNguoiDung", "");
+        if (!maNguoiDung.isEmpty()) {
+            NguoiDungDAO nguoiDungDAO = new NguoiDungDAO(this);
+            NguoiDung nguoiDung = nguoiDungDAO.getByMaNguoiDung(maNguoiDung);
+            if (nguoiDung != null && (nguoiDung.isAdmin() || nguoiDung.getChucVu().equals("NhanVien"))) {
+                // Nhân viên/Admin không được đăng ký tài khoản mới
+                MyToast.error(this, "Chỉ khách hàng mới được đăng ký tài khoản");
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("maNguoiDung", maNguoiDung);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        }
+
         setContentView(R.layout.activity_sign_up);
         initView();
 
@@ -93,6 +114,15 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         if (maNguoiDung.isEmpty() || hoTen.isEmpty() || ngaySinhh.isEmpty() || email.isEmpty() || matKhau.isEmpty()) {
             MyToast.error(SignUpActivity.this, "Vui lòng nhập đẩy đủ thông tin");
         } else {
+            // Kiểm tra tài khoản đã tồn tại chưa
+            if (nguoiDungDAO.checkLogin(maNguoiDung, matKhau)) {
+                MyToast.error(SignUpActivity.this, "Tài khoản đã tồn tại, vui lòng đăng nhập");
+                return;
+            }
+            if (nguoiDungDAO.checkEmail(email)) {
+                MyToast.error(SignUpActivity.this, "Email đã được sử dụng");
+                return;
+            }
             if(isNgaySinh(ngaySinhh) && isEmail(email)){
                 // Tạo Người Dùng mới
                 NguoiDung nguoiDung = new NguoiDung();
@@ -110,10 +140,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 nguoiDung.setMatKhau(matKhau);
                 // Thêm Người Dùng
                 if (nguoiDungDAO.insertNguoiDung(nguoiDung)) {
-                    MyToast.successful(SignUpActivity.this, "Đăng ký thành công");
+                    MyToast.successful(SignUpActivity.this, "Đăng ký thành công! Vui lòng đăng nhập");
                     clearText();
                 } else {
-                    MyToast.error(SignUpActivity.this, "Tài khoản này hoặc email đã tồn tại");
+                    MyToast.error(SignUpActivity.this, "Đăng ký thất bại, vui lòng thử lại");
                 }
             }
         }

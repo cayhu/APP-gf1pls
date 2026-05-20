@@ -2,7 +2,10 @@ package app.edu.app.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -12,6 +15,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import app.edu.app.MainActivity;
 import app.edu.app.R;
 import app.edu.app.dao.NguoiDungDAO;
 import app.edu.app.interfaces.OnUrlFetchedListener;
@@ -28,6 +32,18 @@ public class ChiTietNhanVienActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Kiểm tra quyền Admin trước khi cho phép truy cập
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_FILE", MODE_PRIVATE);
+        String maNguoiDungHienTai = sharedPreferences.getString("maNguoiDung", "");
+        NguoiDungDAO checkDao = new NguoiDungDAO(this);
+        NguoiDung currentUser = checkDao.getByMaNguoiDung(maNguoiDungHienTai);
+        if (currentUser == null || !currentUser.isAdmin()) {
+            app.edu.app.utils.MyToast.error(this, "Chức năng chỉ dành cho Admin");
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_chi_tiet_nhan_vien);
         initStatusBar();
         initView();
@@ -62,7 +78,7 @@ public class ChiTietNhanVienActivity extends AppCompatActivity {
         tvGioiTinh.setText(getGender(nguoiDung));
         tvChucVu.setText(getPosition(nguoiDung));
         tvMaNguoiDung.setText(nguoiDung.getMaNguoiDung());
-        tvMatKhau.setText(nguoiDung.getMatKhau());
+        tvMatKhau.setText("\u2022\u2022\u2022\u2022\u2022\u2022\u2022");
 
     }
 

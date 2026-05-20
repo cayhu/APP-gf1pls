@@ -19,6 +19,7 @@ import app.edu.app.MainActivity;
 
 import app.edu.app.R;
 import app.edu.app.dao.NguoiDungDAO;
+import app.edu.app.model.NguoiDung;
 import app.edu.app.notification.MyNotification;
 import app.edu.app.utils.Loading;
 import app.edu.app.utils.MyToast;
@@ -86,10 +87,21 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void openMainActivity(String username) {
+        // Lấy maNguoiDung thực sự (có thể là username hoặc email)
+        String maNguoiDung = username;
+        NguoiDung user = nguoiDungDAO.getByMaNguoiDungLocal(username);
+        if (user == null) {
+            // Không tìm thấy bằng username, thử tìm bằng email
+            user = nguoiDungDAO.getByEmail(username);
+        }
+        if (user != null) {
+            maNguoiDung = user.getMaNguoiDung();
+        }
+
         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-        intent.putExtra(KEY_USER, username);
-        _maNguoiDung = username;
-        sharedPreferences.edit().putString("maNguoiDung", username).apply();
+        intent.putExtra(KEY_USER, maNguoiDung);
+        _maNguoiDung = maNguoiDung;
+        sharedPreferences.edit().putString("maNguoiDung", maNguoiDung).apply();
         startActivity(intent);
         overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
     }

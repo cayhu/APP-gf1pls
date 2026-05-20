@@ -100,14 +100,25 @@ public class QuanLyBanActivity extends AppCompatActivity {
         banAdapter = new BanAdapter(new ArrayList<>(), new ItemBanOnClick() {
             @Override
             public void itemOclick(View view, Ban ban) {
+                String maNguoiDung = sharedPreferences.getString("maNguoiDung", "");
+                NguoiDungDAO nguoiDungDAO = new NguoiDungDAO(QuanLyBanActivity.this);
+                NguoiDung nguoiDung = nguoiDungDAO.getByMaNguoiDung(maNguoiDung);
+                boolean isKhachHang = (nguoiDung == null || nguoiDung.getChucVu().equals("KhachHang"));
+
                 if (ban.getTrangThai() == Ban.CON_TRONG) {
-                    createNewHoaDon(ban);
+                    if (isKhachHang) {
+                        createNewHoaDon(ban);
+                    } else {
+                        Intent intent = new Intent(QuanLyBanActivity.this, OderActivity.class);
+                        intent.putExtra(MA_BAN, String.valueOf(ban.getMaBan()));
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
+                    }
                 } else {
                     Intent intent = new Intent(QuanLyBanActivity.this, OderActivity.class);
                     intent.putExtra(MA_BAN, String.valueOf(ban.getMaBan()));
                     startActivity(intent);
                     overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
-                    finish();
                 }
             }
         });

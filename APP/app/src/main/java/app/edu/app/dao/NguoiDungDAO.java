@@ -192,9 +192,26 @@ public class NguoiDungDAO extends FirebaseDAO {
         values.put("chucVu", nguoiDung.getChucVu());
         values.put("gioiTinh", nguoiDung.getGioiTinh());
         values.put("matKhau", nguoiDung.getMatKhau());
-        long check = sqLiteDatabase.insert("NGUOIDUNG", null, values);
 
-        // If local insert successful and network available, sync to Firebase
+        // Check if user already exists
+        String checkExistSql = "SELECT * FROM NGUOIDUNG WHERE maNguoiDung=?";
+        Cursor cursor = sqLiteDatabase.rawQuery(checkExistSql, new String[]{nguoiDung.getMaNguoiDung()});
+        boolean userExists = cursor.getCount() > 0;
+        cursor.close();
+
+        long check;
+        if (userExists) {
+            // Update existing user
+            check = sqLiteDatabase.update("NGUOIDUNG", values, "maNguoiDung=?",
+                    new String[]{nguoiDung.getMaNguoiDung()});
+            Log.d(TAG, "Updated existing user: " + nguoiDung.getMaNguoiDung());
+        } else {
+            // Insert new user
+            check = sqLiteDatabase.insert("NGUOIDUNG", null, values);
+            Log.d(TAG, "Inserted new user: " + nguoiDung.getMaNguoiDung());
+        }
+
+        // If local insert/update successful and network available, sync to Firebase
         if (check != -1 && isNetworkAvailable()) {
             isLocalUpdate = true;
             syncToFirebase(nguoiDung);
@@ -302,18 +319,31 @@ public class NguoiDungDAO extends FirebaseDAO {
 
     /**
      * Kiểm tra đăng nhập từ local database chỉ (không sync Firebase)
-     * Dùng cho login để tránh block UI
+     * Hỗ trợ đăng nhập bằng cả maNguoiDung và email
      */
     public boolean checkLogin(String tenDangNhap, String matKhau) {
+        // Kiểm tra bằng maNguoiDung (tên đăng nhập)
         String sqlCheckLogin = "SELECT * FROM NGUOIDUNG WHERE maNguoiDung=? AND matKhau=?";
         ArrayList<NguoiDung> list = get(sqlCheckLogin, tenDangNhap, matKhau);
+
+        if (list.size() != 0) {
+            return true;
+        }
+
+        // Kiểm tra bằng email
+        String sqlCheckEmail = "SELECT * FROM NGUOIDUNG WHERE email=? AND matKhau=?";
+        ArrayList<NguoiDung> listByEmail = get(sqlCheckEmail, tenDangNhap, matKhau);
+
+        if (listByEmail.size() != 0) {
+            return true;
+        }
 
         // Trigger sync in background (không block login)
         if (isNetworkAvailable()) {
             fetchFromFirebaseAsync();
         }
 
-        return list.size() != 0;
+        return false;
     }
     
     /**

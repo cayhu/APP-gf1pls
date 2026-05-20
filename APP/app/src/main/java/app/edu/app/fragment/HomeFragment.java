@@ -59,6 +59,7 @@ import app.edu.app.ui.LoaiThucUongActivity;
 import app.edu.app.ui.MangVeActivity;
 import app.edu.app.ui.NhanVienActivity;
 import app.edu.app.ui.OderActivity;
+import app.edu.app.ui.ThongTinCaNhanActivity;
 import app.edu.app.ui.QuanLyBanActivity;
 import app.edu.app.ui.QuanLyBanNguoiDungActivity;
 import app.edu.app.ui.ThucUongActivity;
@@ -370,13 +371,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             startActivity(new Intent(getContext(), ThucUongActivity.class));
             (requireActivity()).overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         } else if (view.getId() == R.id.cardNhanVien) {
-            if (getNguoiDung().isAdmin()) {
-                // Người dùng có chức vụ ="Admin" -> Mở màng hình quản lý nhân viên
+            NguoiDung user = getNguoiDung();
+            if (user.isAdmin()) {
+                // Admin -> Mở màn hình quản lý nhân viên
                 startActivity(new Intent(getContext(), NhanVienActivity.class));
                 (requireActivity()).overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             } else {
-                // Người dung có chức vụ = "NhanVien"
-                MyToast.error(getContext(), "Chức năng dành cho Admin");
+                // NhanVien -> Mở màn hình thông tin cá nhân
+                startActivity(new Intent(getContext(), ThongTinCaNhanActivity.class));
+                (requireActivity()).overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         } else if (view.getId() == R.id.cardHoaDon2) {
             // Mở màng hình quản lý hoá đơn

@@ -42,6 +42,7 @@ import app.edu.app.model.Ban;
 import app.edu.app.model.HangHoa;
 import app.edu.app.model.HoaDon;
 import app.edu.app.model.HoaDonChiTiet;
+import app.edu.app.model.NguoiDung;
 import app.edu.app.model.ThongBao;
 import app.edu.app.ui.AISuggestionDialog;
 import app.edu.app.utils.MyToast;
@@ -78,7 +79,7 @@ public class OderActivity extends AppCompatActivity {
     SwipeRefreshLayout swipeRefresh;
     Button btnThanhToan;
     Toolbar toolbar;
-    public static  String maBan = "";
+    public static  String maBan = "";  // Reset ở onCreate
     private SharedPreferences sharedPreferences;
     private AISuggestionDialog aiSuggestionDialog;
     private boolean isFirstLoad = true; // ✅ Flag để tracking lần load đầu tiên
@@ -86,6 +87,7 @@ public class OderActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        maBan = ""; // Reset static variable mỗi lần mở Activity mới
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_oder);
         initToolbar();
@@ -131,22 +133,33 @@ public class OderActivity extends AppCompatActivity {
         if(maBan.equals("")){
             maBan = intent.getStringExtra("maBan");
         }
-        
+
         // Kiểm tra xem có maKhachHang trong Intent không (từ QuanLyBanNguoiDungActivity)
         String maKhachHangFromIntent = intent.getStringExtra("maKhachHang");
         String currentMaKhachHang = sharedPreferences.getString("maNguoiDung", "");
-        
-        // Xác định maKhachHang để lấy
+
+        // Kiểm tra vai trò người dùng
+        String maNguoiDung = sharedPreferences.getString("maNguoiDung", "");
+        NguoiDungDAO nguoiDungDAO = new NguoiDungDAO(OderActivity.this);
+        NguoiDung nguoiDung = nguoiDungDAO.getByMaNguoiDung(maNguoiDung);
+        boolean isKhachHang = (nguoiDung == null || nguoiDung.getChucVu().equals("KhachHang"));
+
+        // Xác định maKhachHang để lọc
+        // - Khách hàng: chỉ xem hóa đơn của mình
+        // - Admin/Nhân viên: xem bất kỳ hóa đơn nào của bàn
         String maKhachHang = null;
-        if (maKhachHangFromIntent != null && !maKhachHangFromIntent.isEmpty()) {
+        if (!isKhachHang) {
+            // Admin/Nhân viên: không lọc theo maKhachHang
+            maKhachHang = null;
+        } else if (maKhachHangFromIntent != null && !maKhachHangFromIntent.isEmpty()) {
             maKhachHang = maKhachHangFromIntent;
         } else if (currentMaKhachHang != null && !currentMaKhachHang.isEmpty()) {
             maKhachHang = currentMaKhachHang;
         }
-        
+
         // Lấy ngayGioSuDung từ Intent (nếu có) để lọc theo ngày
         String ngayGioSuDung = intent.getStringExtra("ngayGioSuDung");
-        
+
         // Lấy hóa đơn trực tiếp từ Firebase
         String finalMaKhachHang = maKhachHang;
         hoaDonDAO.getByMaBanFromFirebaseDirect(maBan, maKhachHang, HoaDon.CHUA_THANH_TOAN, ngayGioSuDung,
@@ -170,10 +183,32 @@ public class OderActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-                    Log.w("OderActivity", "Không tìm thấy hóa đơn từ Firebase cho bàn " + maBan + 
+                    Log.w("OderActivity", "Không tìm thấy hóa đơn từ Firebase cho bàn " + maBan +
                           ", maKhachHang=" + finalMaKhachHang + ", ngayGioSuDung=" + ngayGioSuDung, e);
-                    MyToast.error(OderActivity.this, "Bàn này chưa có hóa đơn. Vui lòng tạo hóa đơn mới từ Quản lý bàn.");
-                    finish();
+
+                    if (isKhachHang) {
+                        // Khách hàng → báo lỗi và quay về
+                        MyToast.error(OderActivity.this, "Bàn này chưa có hóa đơn. Vui lòng tạo hóa đơn mới từ Quản lý bàn.");
+                        finish();
+                    } else {
+                        // Admin/Nhân viên → tự tạo hóa đơn mới
+                        Calendar c = Calendar.getInstance();
+                        HoaDon hoaDon = new HoaDon();
+                        hoaDon.setMaBan(Integer.parseInt(maBan));
+                        hoaDon.setGioVao(c.getTime());
+                        hoaDon.setGioRa(c.getTime());
+                        hoaDon.setTrangThai(HoaDon.CHUA_THANH_TOAN);
+                        hoaDon.setMaKhachHang(finalMaKhachHang != null ? finalMaKhachHang : "");
+                        hoaDon.setGhiChu("");
+
+                        if (hoaDonDAO.insertHoaDon(hoaDon)) {
+                            MyToast.successful(OderActivity.this, "Đã tạo hóa đơn mới cho bàn " + maBan);
+                            loadHoaDonFromFirebase();
+                        } else {
+                            MyToast.error(OderActivity.this, "Lỗi khi tạo hóa đơn");
+                            finish();
+                        }
+                    }
                 }
             });
     }

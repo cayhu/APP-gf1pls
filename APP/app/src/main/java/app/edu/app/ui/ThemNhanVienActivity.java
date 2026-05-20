@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +24,7 @@ import java.util.Objects;
 import app.edu.app.R;
 import app.edu.app.dao.NguoiDungDAO;
 import app.edu.app.model.NguoiDung;
+import app.edu.app.model.NguoiDung;
 import app.edu.app.utils.ImageToByte;
 import app.edu.app.utils.MyToast;
 import app.edu.app.utils.XDate;
@@ -39,6 +41,18 @@ public class ThemNhanVienActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Kiểm tra quyền Admin trước khi cho phép truy cập
+        SharedPreferences sharedPreferences = getSharedPreferences("USER_FILE", MODE_PRIVATE);
+        String maNguoiDungHienTai = sharedPreferences.getString("maNguoiDung", "");
+        NguoiDungDAO checkDao = new NguoiDungDAO(this);
+        NguoiDung currentUser = checkDao.getByMaNguoiDung(maNguoiDungHienTai);
+        if (currentUser == null || !currentUser.isAdmin()) {
+            app.edu.app.utils.MyToast.error(this, "Chức năng chỉ dành cho Admin");
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_them_thanh_vien);
         initView();
         nguoiDungDAO = new NguoiDungDAO(this);

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--  Theme Status Bar white  -->
-    <style name="AppStatusBarWhite" parent="Theme.APTCOFFEE">
+    <style name="AppStatusBarWhite" parent="Theme.ARMYCOFFEE">
         <item name="android:statusBarColor">@color/WhitePrimary</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
     </style>
     <!--  Theme Status Bar Gray -->
-    <style name="AppStatusBarGray" parent="Theme.APTCOFFEE">
+    <style name="AppStatusBarGray" parent="Theme.ARMYCOFFEE">
         <item name="android:statusBarColor">@color/GrayPrimary</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
     </style>
